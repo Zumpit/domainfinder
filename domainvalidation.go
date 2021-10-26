@@ -4,13 +4,10 @@ import (
 	"errors"
 	"encoding/json"
 	"fmt"
-	"http"
 	"net"
+	"net/http"
 	"io/ioutil"
 	"regexp"
-	
-	
-	
 )
 
 var domainRegexp = regexp.MustCompile(`^(?i)[a-z0-9-]+(\.[a-z0-9-]+)+\.?$`)
@@ -65,7 +62,7 @@ func DomainValidation(domain string) ([]string, error){
 	}
 	f := make([]string,0)
 	for _, item := range values {
-		f = append(f, item)
+		f = append(f, item)	
 	}
 	return f, nil 
 }
