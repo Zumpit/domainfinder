@@ -10,6 +10,16 @@ import (
 	"regexp"
 )
 
+type Subdomains struct {
+	Domain     string     `json:"domain"`     
+}
+
+type ValidationResult struct {
+	Dns_Exist   bool      `json:"dns_exist"`
+    Syntax      bool      `json:"syntax"`
+	Subdomains 
+}
+
 var domainRegexp = regexp.MustCompile(`^(?i)[a-z0-9-]+(\.[a-z0-9-]+)+\.?$`)
 
 
@@ -40,9 +50,11 @@ func ValidateDomainByResolvingIt(domain string) bool {
 	return true
 }
 
-func DomainValidation(domain string) ([]string, error){
-	term := ValidateDomainByResolvingIt(domain)
-	fmt.Println(term) 
+func DomainValidation(domain string) ([]ValidationResult, error){
+	dns_exist := ValidateDomainByResolvingIt(domain)
+	syntax := IsValidDomain(domain)
+	fmt.Println(dns_exist) 
+	fmt.Println(syntax)
 	res, err := http.Get(fmt.Sprintf("https://sonar.omnisint.io/subdomains/%s" ,domain)) 
     if err != nil {
 		fmt.Println(nil)
@@ -54,15 +66,25 @@ func DomainValidation(domain string) ([]string, error){
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	var values []string 
-
-	if err := json.Unmarshal([]byte(body), &values); err != nil {
-		panic(err)
+    
+	var values ValidationResult
+	values.Dns_Exist = dns_exist
+	values.Syntax = syntax 
+    
+    var subdomains Subdomains  
+	if err := json.Unmarshal([]byte(body), &subdomains); err != nil {
+	    panic(err)
 	}
-	f := make([]string,0)
-	for _, item := range values {
-		f = append(f, item)	
+
+	domain := Subdomains {
+		f :=  append(subdomains,domain)
 	}
-	return f, nil 
+    
+	result := ValidationResult{
+		Dns_Exist: values.Dns_Exist,
+		Syntax: values.Syntax,
+		Subdomains : domain ,
+	}
+
+	return result, nil 
 }
