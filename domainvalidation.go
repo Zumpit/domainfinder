@@ -4,7 +4,8 @@ import (
 	"errors"
 	"encoding/json"
 	"fmt"
-	"net/http"
+	"http"
+	"net"
 	"io/ioutil"
 	"regexp"
 	
@@ -45,7 +46,7 @@ func ValidateDomainByResolvingIt(domain string) bool {
 func DomainValidation(domain string) ([]string, error){
 	term := ValidateDomainByResolvingIt(domain)
 	fmt.Println(term) 
-	res, err := http.Get("https://sonar.omnisint.io/subdomains/%s", domain) 
+	res, err := http.Get(fmt.Sprintf("https://sonar.omnisint.io/subdomains/%s" ,domain)) 
     if err != nil {
 		fmt.Println(nil)
 	}
