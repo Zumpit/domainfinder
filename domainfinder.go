@@ -10,9 +10,9 @@ import (
 )
 
 type Result struct {
-	URL string `json:"url"`
-
-	Title string `json:"title"`
+	Rank         int     `json:"rank"`
+	URL          string `json:"url"`
+	Title        string `json:"title"`
 }
 
 const BaseUrl = "https://www.google."
@@ -272,13 +272,14 @@ func Search(ctx context.Context, searchTerm string, opts ...SearchOptions) ([]Re
 
 	c.OnHTML("div.yuRUbf", func(e *colly.HTMLElement) {
 		sel := e.DOM
-
+        
 		linkHref, _ := sel.Find("a").Attr("href")
 		linkText := strings.TrimSpace(linkHref)
 		titleText := strings.TrimSpace(sel.Find("a > h3").Text())
 
 		if linkText != "" && linkText != "#" && titleText != "" {
 			result := Result{
+				Rank : rank, 
 				URL:   linkText,
 				Title: titleText,
 			}
@@ -315,6 +316,7 @@ func Search(ctx context.Context, searchTerm string, opts ...SearchOptions) ([]Re
 
 	return results, nil
 }
+
 
 func base(url string) string {
 	if strings.HasPrefix(url, "http") {
