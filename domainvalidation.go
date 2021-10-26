@@ -62,6 +62,9 @@ func DomainValidation(domain string) ([]ValidationResult, error){
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
 	
     var values []Subdomains
 	if err := json.Unmarshal([]byte(body), &values); err != nil {
@@ -73,18 +76,18 @@ func DomainValidation(domain string) ([]ValidationResult, error){
 		f = append(f,item)
 	}
 	
-	var result ValidationResult
-	result.Dns_Exist = dns_exist
-	result.Syntax = syntax 
-	result.Objects = f 
+	result := []ValidationResult{}
+	
+	// result.Dns_Exist = dns_exist
+	// result.Syntax = syntax 
+	// result.Objects = f 
 
     con := ValidationResult {
-		Dns_Exist: result.Dns_Exist,
-		Syntax : result.Syntax,
-		Objects: result.Objects,
+		Dns_Exist: dns_exist,
+		Syntax : syntax,
+		Objects: f,
 	}
-    bytes, err := json.Marshal(con); err != nil {
-		panic(err)
-	} 
+    bytes := append(result, con) 
+
 	return bytes, nil 
 }
