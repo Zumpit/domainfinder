@@ -17,7 +17,7 @@ type Subdomains struct {
 type ValidationResult struct {
 	Dns_Exist   bool      `json:"dns_exist"`
     Syntax      bool      `json:"syntax"`
-	[]Objects   Subdomains 
+	Objects     []Subdomains   
 }
 
 var domainRegexp = regexp.MustCompile(`^(?i)[a-z0-9-]+(\.[a-z0-9-]+)+\.?$`)
@@ -73,16 +73,18 @@ func DomainValidation(domain string) ([]ValidationResult, error){
 		f = append(f,item)
 	}
 	
-	result := []ValidationResult{}
+	var result ValidationResult
 	result.Dns_Exist = dns_exist
 	result.Syntax = syntax 
-	result.Subdomains = f 
+	result.Objects = f 
 
     con := ValidationResult {
 		Dns_Exist: result.Dns_Exist,
 		Syntax : result.Syntax,
-		Subdomains: result.Subdomains,
+		Objects: result.Objects,
 	}
-
-	return con, nil 
+    bytes, err := json.Marshal(con); err != nil {
+		panic(err)
+	} 
+	return bytes, nil 
 }
