@@ -2,7 +2,7 @@ package domainfinder
 
 import (
 	"errors"
-	"encoding/json"
+	//"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
@@ -17,7 +17,7 @@ type Subdomains struct {
 type ValidationResult struct {
 	Dns_Exist   bool      `json:"dns_exist"`
     Syntax      bool      `json:"syntax"`
-	Objects     []Subdomains   
+	Subdomains   
 }
 
 var domainRegexp = regexp.MustCompile(`^(?i)[a-z0-9-]+(\.[a-z0-9-]+)+\.?$`)
@@ -65,16 +65,7 @@ func DomainValidation(domain string) ([]ValidationResult, error){
 	if err != nil {
 		fmt.Println(err)
 	}
-	
-    var values []Subdomains
-	if err := json.Unmarshal([]byte(body), &values); err != nil {
-		panic(err)
-	}
-
-	f := make([]Subdomains, 0)
-	for _ ,item := range values {
-		f = append(f,item)
-	}
+	fmt.Println("Body : ",body)
 	
 	result := []ValidationResult{}
 	
@@ -85,7 +76,6 @@ func DomainValidation(domain string) ([]ValidationResult, error){
     con := ValidationResult {
 		Dns_Exist: dns_exist,
 		Syntax : syntax,
-		Objects: f,
 	}
     bytes := append(result, con) 
 
