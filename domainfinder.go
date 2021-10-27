@@ -292,12 +292,14 @@ func WebAppear(ctx context.Context, searchTerm string,opts ...SearchOptions) ([]
 	if opts[0].OverLimit {
 		limit = int(float64(opts[0].Limit) * 1.5)
 	}
+	/*
+	 make the intitle (dorking) +  searchTerm
+	*/
     front := "intitle:\""
 	end := "\""
 	searchTerm = front + searchTerm + end 
-	fmt.Println("Web Appearance Url : ", searchTerm)
+	
 	url := url(searchTerm, opts[0].CountryCode, lc, limit, opts[0].Start)
-
 	if opts[0].ProxyAddr != "" {
 		rp, err := proxy.RoundRobinProxySwitcher(opts[0].ProxyAddr)
 		if err != nil {
