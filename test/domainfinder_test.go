@@ -2,6 +2,7 @@ package test
 
 import (
 	"context"
+  "fmt"
 	"testing"
 	"github.com/Zumpit/domainfinder"
 )
@@ -9,7 +10,7 @@ import (
 var ctx = context.Background()
 
 func TestSearch(t *testing.T){
-	q := "\"allied infoline\""
+	q := "allied infoline"
 
 	opts := domainfinder.SearchOptions{
 		Limit: 20,
@@ -23,4 +24,5 @@ func TestSearch(t *testing.T){
 	if len(ret) == 0 {
 		t.Errorf("no results found : %v", ret)
 	}	
+  fmt.Println(ret)
 }
