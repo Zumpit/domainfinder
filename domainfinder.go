@@ -228,6 +228,98 @@ type SearchOptions struct {
 	ProxyAddr    string
 }
 
+func WebAppear(ctx context.Context, searchTerm string,opts ...SearchOptions) ([]Result,error){
+	if ctx == nil {
+		ctx = context.Background()
+
+	}
+	if err := RateLimit.Wait(ctx); err != nil {
+		return nil, err 
+	}
+	c := colly.NewCollector(colly.MaxDepth(1))
+	if len(opts) == 0 {
+		opts = append(opts, SearchOptions{})
+	}
+
+	if opts[0].UserAgent == "" {
+		c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"
+	} else {
+		c.UserAgent = opts[0].UserAgent
+	}
+
+	var lc string
+	if opts[0].LanguageCode == "" {
+		lc = "en"
+	} else {
+		lc = opts[0].LanguageCode
+	}
+
+	results := []Result{}
+	var rErr error
+	rank := 1
+
+	c.OnRequest(func(r *colly.Request) {
+		if err := ctx.Err(); err != nil {
+			r.Abort()
+			rErr = err
+			return
+		}
+	})
+
+	c.OnError(func(r *colly.Response, err error) {
+		rErr = err
+	})
+
+	c.OnHTML("div.yuRUbf", func(e *colly.HTMLElement) {
+		sel := e.DOM
+        
+		linkHref, _ := sel.Find("a").Attr("href")
+		linkText := strings.TrimSpace(linkHref)
+		titleText := strings.TrimSpace(sel.Find("a > h3").Text())
+
+		if linkText != "" && linkText != "#" && titleText != "" {
+			result := Result{
+				Rank : rank, 
+				URL:   linkText,
+				Title: titleText,
+			}
+			results = append(results, result)
+			rank += 1
+		}
+	})
+
+	limit := opts[0].Limit
+	if opts[0].OverLimit {
+		limit = int(float64(opts[0].Limit) * 1.5)
+	}
+    front := "intitle:\""
+	end := "\""
+	searchTerm = front + searchTerm + end 
+	fmt.Println("Web Appearance Url : ", searchTerm)
+	url := url(searchTerm, opts[0].CountryCode, lc, limit, opts[0].Start)
+
+	if opts[0].ProxyAddr != "" {
+		rp, err := proxy.RoundRobinProxySwitcher(opts[0].ProxyAddr)
+		if err != nil {
+			return nil, err
+		}
+		c.SetProxyFunc(rp)
+	}
+	c.Visit(url)
+
+	if rErr != nil {
+		if strings.Contains(rErr.Error(), "Too many requests") {
+			return nil, ErrBlocked
+		}
+		return nil, rErr
+	}
+	if opts[0].Limit != 0 && len(results) > opts[0].Limit {
+		return results[:opts[0].Limit], nil
+	}
+
+	return results, nil
+}
+
 func Search(ctx context.Context, searchTerm string, opts ...SearchOptions) ([]Result, error) {
 	if ctx == nil {
 		ctx = context.Background()
@@ -336,22 +428,21 @@ func url(searchTerm string, countryCode string, languageCode string, limit int, 
 	if googleBase, found := GoogleDomains[countryCode]; found {
 		if start == 0 {
 			url = fmt.Sprintf("%s%s&hl=%s", base(googleBase), searchTerm, languageCode)
-      fmt.Println("if equals to 0",url)
+    
 		} else {
 			url = fmt.Sprintf("%s%s&hl=%s&start=%d", base(googleBase), searchTerm, languageCode, start)
-      fmt.Println("if using start : ",url)
+      
 
     }
 	} else {
 		if start == 0 {
 			url = fmt.Sprintf("%s%s&hl=%s", BaseUrl+GoogleDomains["us"], searchTerm, languageCode)
        
-      fmt.Println("using US code + 0==start : ",url)
+
 		} else {
 			url = fmt.Sprintf("%s%s&hl=%s&start=%d", BaseUrl+GoogleDomains["us"], searchTerm, languageCode, start)
        
-      fmt.Println("using US code + some start : ",url)
-
+    
 		}
 	}
 
