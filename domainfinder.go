@@ -336,14 +336,22 @@ func url(searchTerm string, countryCode string, languageCode string, limit int, 
 	if googleBase, found := GoogleDomains[countryCode]; found {
 		if start == 0 {
 			url = fmt.Sprintf("%s%s&hl=%s", base(googleBase), searchTerm, languageCode)
+      fmt.Println("if equals to 0",url)
 		} else {
 			url = fmt.Sprintf("%s%s&hl=%s&start=%d", base(googleBase), searchTerm, languageCode, start)
-		}
+      fmt.Println("if using start : ",url)
+
+    }
 	} else {
 		if start == 0 {
 			url = fmt.Sprintf("%s%s&hl=%s", BaseUrl+GoogleDomains["us"], searchTerm, languageCode)
+       
+      fmt.Println("using US code + 0==start : ",url)
 		} else {
 			url = fmt.Sprintf("%s%s&hl=%s&start=%d", BaseUrl+GoogleDomains["us"], searchTerm, languageCode, start)
+       
+      fmt.Println("using US code + some start : ",url)
+
 		}
 	}
 
