@@ -5,19 +5,15 @@ import (
 	//"encoding/json"
 	"fmt"
 	"net"
-	"net/http"
-	"io/ioutil"
 	"regexp"
+	"github.com/likexian/whois"
 )
 
-type Subdomains struct {
-	Domain     string     `json:"domain"`     
-}
 
 type ValidationResult struct {
 	Dns_Exist   bool      `json:"dns_exist"`
     Syntax      bool      `json:"syntax"`
-	Subdomains   
+	  
 }
 
 var domainRegexp = regexp.MustCompile(`^(?i)[a-z0-9-]+(\.[a-z0-9-]+)+\.?$`)
@@ -50,34 +46,6 @@ func ValidateDomainByResolvingIt(domain string) bool {
 	return true
 }
 
-func DomainValidation(domain string) ([]ValidationResult, error){
-	dns_exist := ValidateDomainByResolvingIt(domain)
-	syntax := IsValidDomain(domain)
-	fmt.Println(dns_exist) 
-	fmt.Println(syntax)
-	res, err := http.Get(fmt.Sprintf("https://sonar.omnisint.io/subdomains/%s" ,domain)) 
-    if err != nil {
-		fmt.Println(nil)
-	}
-	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Body : ",body)
-	
-	result := []ValidationResult{}
-	
-	// result.Dns_Exist = dns_exist
-	// result.Syntax = syntax 
-	// result.Objects = f 
-
-    con := ValidationResult {
-		Dns_Exist: dns_exist,
-		Syntax : syntax,
-	}
-    bytes := append(result, con) 
-
-	return bytes, nil 
-}
+// func DomainLookup(domain string) {
+     
+// }

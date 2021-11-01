@@ -15,6 +15,11 @@ type Result struct {
 	Title        string `json:"title"`
 }
 
+type Subdomains struct {
+	Domain     string     `json:"domain"`     
+}
+
+
 const BaseUrl = "https://www.google."
 
 var GoogleDomains = map[string]string{
@@ -228,6 +233,28 @@ type SearchOptions struct {
 	ProxyAddr    string
 }
 
+// Get Subdomains 
+
+func GetSubDomains(ctx context.Context,searchTerm string) ([]ValidationResult, error){
+	res, err := http.Get(fmt.Sprintf("https://sonar.omnisint.io/subdomains/%s" ,domain)) 
+    if err != nil {
+		fmt.Println(nil)
+	}
+	
+	result := []ValidationResult{}
+    
+    /*con := ValidationResult {
+		Domain : result.Result  
+	}
+	*/
+    bytes := append(result, con) 
+
+	return bytes, nil 
+}
+
+/*
+* Web Appearance on Google
+*/
 func WebAppear(ctx context.Context, searchTerm string,opts ...SearchOptions) ([]Result,error){
 	if ctx == nil {
 		ctx = context.Background()
